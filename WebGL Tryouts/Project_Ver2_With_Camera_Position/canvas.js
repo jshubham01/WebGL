@@ -1,3 +1,9 @@
+//
+// Shubham Jangam
+//
+
+
+
 // global variables
 var canvas = null
 // webgl context
@@ -32,6 +38,9 @@ var vertexShaderObject;
 var fragmentShaderObject;
 var shaderProgramObject;
 
+var vao_head;
+var vbo_head;
+
 var vao_ground;
 var vbo_ground_position;
 var perspectiveProjectionMatrix;
@@ -44,6 +53,18 @@ var vbo_cube_sidepanels_pos;
 
 var vao_sidepanels_aside;
 var vbo_cube_sidepanels_pos_aside;
+
+var vao_front_top_triangle;
+var vbo_front_top_traingle_pos;
+
+var vao_back_top_triangle;
+var vbo_back_top_triangle_pos;
+
+var vao_leftRect;
+var vbo_leftRect;
+
+var vao_rightRect;
+var vbo_rightRect;
 
 var mvpUniform;
 var colorUniform;
@@ -173,8 +194,6 @@ function init()
             "color = get_marble();" +
         "}" +
 
-
-
         "vFragColor = vec4(color, 1.0);" +
     "}"
 
@@ -246,7 +265,7 @@ function init()
 			-2.0,  1.0,  2.0,
              2.0,  1.0,  2.0,
 
-			 2.0, -3.0, -2.0 ,
+			 2.0, -3.0, -2.0,
 			-2.0, -3.0, -2.0,
 			-2.0, -3.0,  2.0,
              2.0, -3.0,  2.0,
@@ -299,7 +318,6 @@ function init()
                     2.0,  1.2,  2.0,
                     2.2,  1.0,  2.0]);
 
-
     vao_sidepanels = gl.createVertexArray();
     gl.bindVertexArray(vao_sidepanels);
     vbo_cube_sidepanels_pos = gl.createBuffer();
@@ -310,17 +328,105 @@ function init()
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindVertexArray(null);
 
-    // getting the rect on left side of shade
-    var side_panels_aside = new Float32Array([
-                    2.2,  1.2, -2.0,
-                    -2.0,  1.0, -2.0,
-                    -2.0,  1.0,  2.0,
-                     2.2,  1.2,  2.0]);
+    var frontTopTriangle = new Float32Array([
+                    2.2, 1.0, 2.0,
+                    0,   1.8, 2.0,
+                    -2.2, 1.0, 2.0
+                ]);
 
-    vao_sidepanels_aside = gl.createVertexArray();
-    gl.bindVertexArray(vao_sidepanels_aside);
+    vao_front_top_triangle = gl.createVertexArray();
+    gl.bindVertexArray(vao_front_top_triangle);
+
+    vbo_front_top_traingle_pos = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_front_top_traingle_pos);
+    gl.bufferData(gl.ARRAY_BUFFER, frontTopTriangle, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(WebGLMacros.AMC_ATTRIBUTE_VERTEX, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(WebGLMacros.AMC_ATTRIBUTE_VERTEX);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
     gl.bindVertexArray(null);
 
+    var backTopTriangle = new Float32Array([
+                    2.2, 1.0, -2.0,
+                    0,   1.8, -2.0,
+                    -2.2, 1.0, -2.0
+                ])
+
+    vao_back_top_triangle = gl.createVertexArray();
+    gl.bindVertexArray(vao_back_top_triangle);
+
+    vbo_back_top_triangle_pos = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_back_top_triangle_pos);
+    gl.bufferData(gl.ARRAY_BUFFER, backTopTriangle, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(WebGLMacros.AMC_ATTRIBUTE_VERTEX, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(WebGLMacros.AMC_ATTRIBUTE_VERTEX);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    gl.bindVertexArray(null);
+
+    var leftRect = new Float32Array([
+        0.0,  1.8,  -2.0,
+        -2.2, 1.0, -2.0,
+        -2.2, 1.0, 2.0,
+        0.0,  1.8, 2.0
+    ]);
+
+    vao_leftRect = gl.createVertexArray();
+    gl.bindVertexArray(vao_leftRect);
+
+    vbo_leftRect = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_leftRect);
+    gl.bufferData(gl.ARRAY_BUFFER, leftRect, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(WebGLMacros.AMC_ATTRIBUTE_VERTEX, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(WebGLMacros.AMC_ATTRIBUTE_VERTEX);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    gl.bindVertexArray(null);
+
+    var rightRect = new Float32Array([
+         0.0,  1.8,  -2.0,
+         2.2, 1.0,  -2.0,
+         2.2, 1.0,   2.0,
+         0.0,  1.8,   2.0
+    ]);
+
+    vao_rightRect = gl.createVertexArray();
+    gl.bindVertexArray(vao_rightRect);
+
+    vbo_rightRect = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_rightRect);
+    gl.bufferData(gl.ARRAY_BUFFER, rightRect, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(WebGLMacros.AMC_ATTRIBUTE_VERTEX, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(WebGLMacros.AMC_ATTRIBUTE_VERTEX);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    gl.bindVertexArray(null);
+
+    var head= new Float32Array([
+        -0.5,  1.0,  2.0,
+        -0.5, -1.0,  2.0,
+        0.5,  -1.0,  2.0,
+        0.5,  1.0,  2.0
+   ]);
+
+   vao_head = gl.createVertexArray();
+   gl.bindVertexArray(vao_head);
+
+   vbo_head = gl.createBuffer();
+   gl.bindBuffer(gl.ARRAY_BUFFER, vbo_head);
+   gl.bufferData(gl.ARRAY_BUFFER, head, gl.STATIC_DRAW);
+   gl.vertexAttribPointer(WebGLMacros.AMC_ATTRIBUTE_VERTEX, 3, gl.FLOAT, false, 0, 0);
+   gl.enableVertexAttribArray(WebGLMacros.AMC_ATTRIBUTE_VERTEX);
+   gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+   gl.bindVertexArray(null);
+
+   vbo_rightRect = gl.createBuffer();
+   gl.bindBuffer(gl.ARRAY_BUFFER, vbo_rightRect);
+   gl.bufferData(gl.ARRAY_BUFFER, rightRect, gl.STATIC_DRAW);
+   gl.vertexAttribPointer(WebGLMacros.AMC_ATTRIBUTE_VERTEX, 3, gl.FLOAT, false, 0, 0);
+   gl.enableVertexAttribArray(WebGLMacros.AMC_ATTRIBUTE_VERTEX);
+   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     // setting texture
     getTexture();
@@ -395,10 +501,9 @@ function draw()
     gl.uniformMatrix4fv(mvpUniform, false, modelViewProjectionMatrix);
 
     gl.uniform4f(colorUniform, 0.88, 0.66, 0.37, 1.0);
-    gl.uniform1i(textureFlagUniform, 0);
+    gl.uniform1i(textureFlagUniform, 0); 
     gl.bindVertexArray(vao_ground);
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-    
     gl.bindVertexArray(null);
 
     // Adding Marble Texture to floor
@@ -412,12 +517,11 @@ function draw()
     gl.uniform1i(textureFlagUniform, 0);
     // Done Adding Texture To floor
 
-
     gl.uniform1i(textureFlagUniform, 1);
     gl.bindVertexArray(vao_cube);
     //  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
     //  gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-    
+
     gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
     gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
     gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
@@ -426,20 +530,39 @@ function draw()
     gl.bindVertexArray(null);
     gl.uniform1i(textureFlagUniform, 0);
 
-    gl.uniform4f(colorUniform, 0.88, 0.1, 0.1, 1.0);
-    gl.bindVertexArray(vao_sidepanels);
+    gl.uniform4f(colorUniform, 0.768, 0.768, 0.768, 1.0);
+    // gl.bindVertexArray(vao_sidepanels);
+    // gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+    // gl.bindVertexArray(null);
+
+    gl.uniform1i(samplerUniform, 0);
+
+    gl.bindVertexArray(vao_front_top_triangle);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 3);
+    gl.bindVertexArray(null);
+
+    gl.bindVertexArray(vao_back_top_triangle);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 3);
+    gl.bindVertexArray(null);
+
+    // ,
+    gl.bindVertexArray(vao_rightRect);
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
     gl.bindVertexArray(null);
 
-    gl.uniform1i(samplerUniform, 0);
+    gl.bindVertexArray(vao_leftRect);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+    gl.bindVertexArray(null);
+
+    gl.uniform1i(textureFlagUniform, 1);
+    gl.bindVertexArray(vao_head);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+    gl.bindVertexArray(null);
 
     gl.useProgram(null);
 
     requestAnimationFrame(draw, canvas);
 }
-
-
-
 
 function main()
 {
